@@ -1,6 +1,6 @@
 # https://developers.home-assistant.io/docs/add-ons/configuration#add-on-config
 name: Futurehometest
-version: '1.3.0'
+version: '1.4.0'
 slug: futurehometest
 description: Local Futurehome Smarthub integration
 url: 'https://github.com/Andbli/home-assistant-futurehome/'
@@ -35,4 +35,4 @@ schema:
   demo_mode: 'bool?'
   show_debug_log: 'bool?'
 
-image: 'ghcr.io/Andbli/{arch}-home-assistant-futurehome'
+image: 'ghcr.io/Andbli/{arch}-home-assistant-futurehome:1.4.0'
