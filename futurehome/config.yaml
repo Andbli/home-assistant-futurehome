@@ -35,4 +35,4 @@ schema:
   demo_mode: 'bool?'
   show_debug_log: 'bool?'
 
-image: 'ghcr.io/Andbli/{arch}-home-assistant-futurehome:1.4.0'
+image: 'ghcr.io/Andbli/{arch}-home-assistant-futurehome'
