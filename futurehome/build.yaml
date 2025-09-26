@@ -8,5 +8,5 @@ build_from:
 labels:
   org.opencontainers.image.title: "Home Assistant Add-on: Futurehome"
   org.opencontainers.image.description: "Integrates Futurehome Smarthub via local FIMP/MQTT"
-  org.opencontainers.image.source: "https://github.com/adrianjagielak/home-assistant-futurehome"
+  org.opencontainers.image.source: "https://github.com/Andbli/home-assistant-futurehome"
   org.opencontainers.image.licenses: "MIT License"
