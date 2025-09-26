@@ -1,5 +1,8 @@
 import { sendFimpMsg } from '../fimp/fimp';
-import { VinculumPd7Device, VinculumPd7Service } from '../fimp/vinculum_pd7_device';
+import {
+  VinculumPd7Device,
+  VinculumPd7Service,
+} from '../fimp/vinculum_pd7_device';
 import { ServiceComponentsCreationResult } from '../ha/publish_device';
 
 export function out_lvl_switch__components(
@@ -14,19 +17,19 @@ export function out_lvl_switch__components(
   const minLvl = svc.props?.min_lvl ?? 0;
   const maxLvl = svc.props?.max_lvl ?? 100;
 
-  // Detect light devices: either type 'light' or has light support
-  const isLightDevice = device.type?.type === 'light' || device.type?.supported?.light?.length > 0;
+  // ✅ Safe light detection
+  const isLightDevice =
+    device.type?.type === 'light' ||
+    (device.type?.supported?.light?.length ?? 0) > 0;
 
   if (isLightDevice) {
-    // --------------------------
-    // Light device handling
-    // --------------------------
+    // Use light component for light devices
     return {
       components: {
         [`${svc.addr}_light`]: {
           unique_id: `${svc.addr}_light`,
           platform: 'light',
-          name: svc.name ?? 'Light',
+          name: 'Light',
           brightness: true,
           brightness_scale: maxLvl,
           command_topic: commandTopic,
@@ -36,7 +39,8 @@ export function out_lvl_switch__components(
           brightness_state_topic: stateTopic,
           brightness_value_template: `{{ value_json.lvl }}`,
         },
-        // Keep old number entity as empty to remove duplicates in HA
+
+        // Remove the no longer needed `number` entity
         [svc.addr]: {
           unique_id: svc.addr,
         } as any,
@@ -44,15 +48,20 @@ export function out_lvl_switch__components(
 
       commandHandlers: {
         [commandTopic]: async (payload: string) => {
-          let command: any = {};
+          let state: 'ON' | 'OFF' | undefined;
+          let brightness: number | undefined;
+
           try {
-            command = JSON.parse(payload);
+            const obj = JSON.parse(payload);
+            state = obj.state;
+            brightness = obj.brightness;
           } catch {
-            if (payload === 'ON' || payload === 'OFF') command.state = payload;
-            else command.brightness = parseInt(payload, 10);
+            // Not JSON, fallback to simple payload
+            if (payload === 'ON' || payload === 'OFF') state = payload as 'ON' | 'OFF';
+            else brightness = parseInt(payload, 10);
           }
 
-          let lvl = command.brightness ?? (command.state === 'ON' ? maxLvl : minLvl);
+          let lvl = brightness ?? (state === 'ON' ? maxLvl : minLvl);
           lvl = Math.max(minLvl, Math.min(maxLvl, lvl));
 
           await sendFimpMsg({
@@ -66,9 +75,7 @@ export function out_lvl_switch__components(
       },
     };
   } else {
-    // --------------------------
-    // Number entity handling
-    // --------------------------
+    // Use number component for non-light devices
     return {
       components: {
         [svc.addr]: {
